@@ -1,0 +1,37 @@
+### K_POINTS uniformes com base em n1:
+# Espaçamento aproximado = 0.316 Å⁻¹
+K_POINTS automatic
+4 2 3 0 0 0
+
+# Espaçamento aproximado = 0.253 Å⁻¹
+K_POINTS automatic
+5 3 3 0 0 0
+
+# Espaçamento aproximado = 0.210 Å⁻¹
+K_POINTS automatic
+6 3 4 0 0 0
+
+# Espaçamento aproximado = 0.180 Å⁻¹
+K_POINTS automatic
+7 4 5 0 0 0
+
+# Espaçamento aproximado = 0.158 Å⁻¹
+K_POINTS automatic
+8 4 6 0 0 0
+
+# Espaçamento aproximado = 0.140 Å⁻¹
+K_POINTS automatic
+9 5 6 0 0 0
+
+# Espaçamento aproximado = 0.126 Å⁻¹
+K_POINTS automatic
+10 6 7 0 0 0
+
+# Espaçamento aproximado = 0.115 Å⁻¹
+K_POINTS automatic
+11 6 8 0 0 0
+
+# Espaçamento aproximado = 0.105 Å⁻¹
+K_POINTS automatic
+12 7 8 0 0 0
+

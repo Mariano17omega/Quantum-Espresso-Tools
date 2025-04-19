@@ -11,4 +11,3 @@ A pasta temporaria tmp não será inclusa no arquivo enviado pelo email.
 
 OBS: Os aquivos `notify.py` e `KEY-GMAIL.txt` precisam está nas mesmas pastas que seus scripts para funciona. O Cluster Lucci não aceita que você coloque o `notify.py` fora da pasta onde está chamando, ou seja, precisará ter uma copia desses arquivos em cada pasta de simulação.
 
-A
