@@ -1,0 +1,120 @@
+#!/bin/sh
+# Executa o programa pw.x, v. 7.1 
+# Cicero Mota, mota@ufam.edu.br: Sep 1, 2018; Jun 29, 2022; Jul 18, 2022.
+# Mariano S. onairam17@gmail.com: Apr 17, 2025.
+####################################################
+NAME='exemplo' 
+DESCRICAO="Teste de convergência Exemplo"
+####################################################
+########       Configuração do pw.x         ########
+####################################################
+PWCOMMAND="/opt/espresso-7.1/bin/pw.x -nk 32"
+#
+###       Grid Set Up                   ###
+#$ -N "kaolinite_K_POINTS"
+#$ -pe physica 128
+#$ -cwd
+#$ -j y
+#
+###        Intel MPI Set Up             ###
+export OMP_NUM_THREADS=1
+export I_MPI_SHM=bdw_avx2
+. /opt/intel/oneapi/mkl/latest/env/vars.sh
+. /opt/intel/oneapi/mpi/latest/env/vars.sh
+MPICOMMAND="/opt/intel/oneapi/mpi/latest/bin/mpiexec -bootstrap ssh"
+####################################################
+########        Executa as Simulacao        ########
+####################################################
+# Envia um email avisando o inicio
+/usr/bin/python3 /home/alumni/mariano/notify/notify_job.py job_run "$NAME" "$DESCRICAO"
+mkdir -p inputs outputs  
+
+
+num=$(awk 'BEGIN{for(i=10;i<=140;i+=10)print i}')
+for label in $num
+do
+
+cat > "${NAME}.ecutwfc${label}.in"<< EOF
+&control
+    calculation = 'scf',
+    restart_mode='from_scratch',
+    prefix='kaolinite',
+    pseudo_dir = '/home/alumni/mariano/PSEUDO',
+    outdir='./tmp'
+    verbosity = 'low'		
+/
+&system
+  ibrav = 0
+  nat = 34 
+  ntyp = 4
+  nosym = .false.
+  occupations = 'fixed'
+  ecutwfc = $label
+  ecutrho = $((4*$label))
+ 
+/
+&electrons
+  conv_thr =   6.8000000000d-09
+  mixing_beta = 0.7
+  electron_maxstep = 200
+/
+CELL_PARAMETERS angstrom
+      5.1535000000       0.0000000000       0.0000000000
+      0.0316812498       8.9418438763       0.0000000000
+     -1.9185587907      -0.2415925816       7.1331433149
+ATOMIC_SPECIES
+Al     26.981538 Al.upf
+H      1.00794 H.upf
+O      15.9994 O.upf
+Si     28.0855 Si.upf
+ATOMIC_POSITIONS crystal
+Al           0.2890000000       0.4966000000       0.4660000000
+Al           0.7890000000       0.9966000000       0.4660000000
+Al           0.7930000000       0.3288000000       0.4650000000
+Al           0.2930000000       0.8288000000       0.4650000000
+Si           0.9890000000       0.3395000000       0.0906000000
+Si           0.4890000000       0.8395000000       0.0906000000
+Si           0.5070000000       0.1665000000       0.0938000000
+Si           0.0070000000       0.6665000000       0.0938000000
+O            0.0490000000       0.3482000000       0.3168000000
+O            0.5490000000       0.8482000000       0.3168000000
+O            0.1130000000       0.6599000000       0.3188000000
+O            0.6130000000       0.1599000000       0.3188000000
+O           -0.0000000000       0.5000000000       0.0000000000
+O            0.5000000000       0.0000000000       0.0000000000
+O            0.2040000000       0.2291000000       0.0300000000
+O            0.7040000000       0.7291000000       0.0300000000
+O            0.1970000000       0.7641000000       0.0010000000
+O            0.6970000000       0.2641000000       0.0010000000
+O            0.0500000000       0.9710000000       0.3250000000
+O            0.5500000000       0.4710000000       0.3250000000
+O            0.9600000000       0.1658000000       0.6070000000
+O            0.4600000000       0.6658000000       0.6070000000
+O            0.0370000000       0.4726000000       0.6046000000
+O            0.5370000000       0.9726000000       0.6046000000
+O            0.0380000000       0.8582000000       0.6090000000
+O            0.5380000000       0.3582000000       0.6090000000
+H            0.1450000000       0.0651000000       0.3260000000
+H            0.6450000000       0.5651000000       0.3260000000
+H            0.0630000000       0.1638000000       0.7390000000
+H            0.5630000000       0.6638000000       0.7390000000
+H            0.0360000000       0.5057000000       0.7320000000
+H            0.5360000000       0.0057000000       0.7320000000
+H            0.5340000000       0.3154000000       0.7280000000
+H            0.0340000000       0.8154000000       0.7280000000
+K_POINTS automatic
+6 3 4 0 0 0
+EOF
+
+
+  sleep $((RANDOM % 10)) 
+  # Organiza arquivos
+  mv "${NAME}.ecutwfc${label}.in"  inputs/
+  mv "${NAME}.ecutwfc${label}.out" outputs/
+done
+
+
+####################################
+# Envia um email avisando que terminou
+tar --exclude="./tmp" --exclude="notify_job.py" --exclude="KEY-GMAIL.txt" --exclude="./${NAME}.tar.gz" -czf "${NAME}.tar.gz" .
+python3 notify_job.py job_end "$NOME_DO_JOB" "$DESCRICAO"  "$(pwd)"
